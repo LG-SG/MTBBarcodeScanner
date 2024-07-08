@@ -566,10 +566,22 @@ static const NSInteger kErrorMethodNotAvailableOnIOSVersion = 1005;
     AVCaptureDevicePosition position = [[self class] devicePositionForCamera:camera];
     
     if (@available(iOS 10.0, *)) {
-        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInWideAngleCamera
-                                                                     mediaType:AVMediaTypeVideo
-                                                                      position:position];
-        newCaptureDevice = device;
+        AVCaptureDevice *currentCameraDevice = nil;
+
+        if ([AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInTripleCamera mediaType:AVMediaTypeVideo position:position]) {
+                currentCameraDevice = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInTripleCamera mediaType:AVMediaTypeVideo position:position];
+            } else if ([AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInDualCamera mediaType:AVMediaTypeVideo position:position]) {
+                currentCameraDevice = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInDualCamera mediaType:AVMediaTypeVideo position:position];
+            } else {
+                NSArray<AVCaptureDevice *> *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+                for (AVCaptureDevice *device in devices) {
+                    if (device.position == position) {
+                        currentCameraDevice = device;
+                        break;
+                    }
+                }
+            }
+        newCaptureDevice = currentCameraDevice;
     } else {
         // We can ignore the deprecation here because we are using
         // AVCaptureDeviceDiscoverySession if it is available
