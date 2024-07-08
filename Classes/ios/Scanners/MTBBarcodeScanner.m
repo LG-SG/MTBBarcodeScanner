@@ -469,7 +469,9 @@ static const NSInteger kErrorMethodNotAvailableOnIOSVersion = 1005;
 }
 
 - (void)refreshVideoOrientation {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    // Get the current interface orientation from the root view controller
+    UIInterfaceOrientation orientation = [[[[UIApplication sharedApplication] delegate] window] rootViewController].interfaceOrientation;
+
     self.capturePreviewLayer.frame = self.previewView.bounds;
     if ([self.capturePreviewLayer.connection isVideoOrientationSupported]) {
         self.capturePreviewLayer.connection.videoOrientation = [self captureOrientationForInterfaceOrientation:orientation];
